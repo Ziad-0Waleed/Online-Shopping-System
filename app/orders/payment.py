@@ -6,21 +6,28 @@ class Payment(ABC):
         self.__payment_id = payment_id
         self.__order = order
         self.__amount = order.total
-        self.__method = method
+        self.__method = self.validate_method(method)
         self.__status = "Pending"
         self.__date = None
 
     @property
     def status(self):
-        pass
+        return self.__status
 
     @property
     def amount(self):
-        pass
+        return self.__amount
+
+    @property
+    def method(self):
+        return self.__method
 
     @staticmethod
     def validate_method(method):
-        pass
+        valid_methods = ["Cash On Delivery (COD)", "Credit/Debit Card"]
+        if method not in valid_methods:
+            raise ValueError("Invalid payment method")
+        return method
     
     @abstractmethod
     def process_payment(self):
@@ -28,6 +35,9 @@ class Payment(ABC):
         pass
 
     def refund(self):
-        
-        pass
+        if self.__status != "Confirmed":
+            raise ValueError("Cannot refund payment that has not been confirmed")
+        self.__status = "Refunded"
+        self.__date = datetime.now()
+        return f"Payment {self.__payment_id} refunded successfully"
 
