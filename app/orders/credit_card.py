@@ -8,8 +8,40 @@ class CreditCard(Payment):
         self._Payment__date = None
         self._Payment__status = None
         self.__card_number = card_number
-        self.__expiration = expiration
+        self.__expiration = (datetime.strptime(expiration, "%Y-%m").date()
+                             if expiration else None
+                             )
         self.__cvv = cvv
+
+    @property
+    def card_number(self):
+        return self.__card_number
+
+    @card_number.setter
+    def card_number(self, value):
+        if value < 16:
+            raise ValueError("Invalid card number")
+        self.__card_number = value
+
+    @property
+    def expiration(self):
+        return self.__expiration
+
+    @expiration.setter
+    def expiration(self, value):
+        if datetime.strptime(value, "%Y-%m").date() < self.__expiration:
+            raise ValueError("Expired card")
+        self.__expiration = value
+
+    @property
+    def cvv(self):
+        return self.__cvv
+
+    @cvv.setter
+    def cvv(self, value):
+        if 3 > value > 4:
+            raise ValueError("Invalid cvv")
+        self.__cvv = value
 
     def process_payment(self):
         self._Payment__status = "Completed"
