@@ -46,8 +46,11 @@ class Cart:
                 total += line_total - discount
             else:
                 total += line_total
-        return f"${total}"
+        return total
 
+
+    def is_empty(self):
+        return not bool(self.__items)
 
     def list_items(self):
         for product_id,data in self.__items.items():

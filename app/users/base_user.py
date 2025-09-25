@@ -2,7 +2,6 @@ from abc import ABC , abstractmethod
 
 class User(ABC):
     def __init__(self, email, password, name):
-
         self.__email = email
         self.__password = password
         self.name = name
@@ -29,7 +28,7 @@ class User(ABC):
         return self.__password == password
     
     @abstractmethod
-    def view_menu(self):
+    def view_menu(self,products, coupons = None):
         pass
 
     def __repr__(self):

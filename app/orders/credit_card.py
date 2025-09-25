@@ -2,46 +2,40 @@ from datetime import datetime
 from payment import Payment
 
 class CreditCard(Payment):
-    def __init__(self, payment_id, order, card_number, expiration, cvv):
-        super().__init__(payment_id, order, "Credit/Debit Card")
+    def __init__(self, payment_id, order,method, card_number, expiration, cvv):
+        super().__init__(payment_id, order, method)
 
         self._Payment__date = None
         self._Payment__status = None
-        self.__card_number = card_number
+        self.__card_number = str(card_number)
         self.__expiration = (datetime.strptime(expiration, "%Y-%m").date()
                              if expiration else None
                              )
-        self.__cvv = cvv
+        self.__cvv = str(cvv)
 
-    @property
-    def card_number(self):
-        return self.__card_number
+    def _validate_card(self):
+        if not self.__card_number.isdigit() or not len(self.__card_number) == 16:
+            raise ValueError("Card number must be 16 digits")
 
-    @card_number.setter
-    def card_number(self, value):
-        if value < 16:
-            raise ValueError("Invalid card number")
-        self.__card_number = value
+        if not self.__cvv.isdigit() or len(self.__cvv) not in (3, 4):
+            raise ValueError("CVV must be 3 or 4 digits")
 
-    @property
-    def expiration(self):
-        return self.__expiration
-
-    @expiration.setter
-    def expiration(self, value):
-        if datetime.strptime(value, "%Y-%m").date() < self.__expiration:
-            raise ValueError("Expired card")
-        self.__expiration = value
-
-    @property
-    def cvv(self):
-        return self.__cvv
-
-    @cvv.setter
-    def cvv(self, value):
-        if 3 > value > 4:
-            raise ValueError("Invalid cvv")
-        self.__cvv = value
+        try:
+            parts = self.__expiration.split("/")
+            if len(parts) != 2:
+                raise ValueError
+            month = int(parts[0])
+            year = int(parts[1])
+            if year < 100:  # "24" -> 2024
+                year += 2000
+            if not 1 <= month <= 12:
+                raise ValueError
+            exp_date = datetime(year, month, 1)
+            now = datetime.now()
+            if (year < now.year) or (year == now.year and month < now.month):
+                raise ValueError("Card expired")
+        except ValueError:
+            raise ValueError("Expiration must be in MM/YY format and not expired")
 
     def process_payment(self):
         self._Payment__status = "Completed"

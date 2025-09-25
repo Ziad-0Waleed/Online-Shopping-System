@@ -32,11 +32,10 @@ class Coupon:
         return self.__applicable_products
 
     def is_valid(self):
-        """Check if the coupon is still valid (not expired)."""
+        """Return True if coupon is not expired. None expiry => no expiry (valid)."""
         if self.__expiry_date is None:
             return True
-        else:
-            return self.__expiry_date >= datetime.today().date()
+        return self.__expiry_date >= datetime.today().date()
         
     def applies_to(self, product_id):
         """Check if this coupon applies to a specific product."""
